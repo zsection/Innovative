@@ -1,0 +1,614 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 0%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 0%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 0%;
+
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 90%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
+
+    --radius: 0.25rem;
+    
+    /* Custom app colors */
+    --sidebar-bg: 60 6% 97%;
+    --main-content-bg: 0 0% 98%;
+    --input-border: 0 0% 90%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html, body {
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    @apply font-helvetica antialiased;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  #root {
+    border: 5px solid black;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background-color: #fff;
+  }
+}
+
+@layer components {
+  .checkbox {
+    @apply w-[18px] h-[18px] border border-gray-300 rounded flex items-center justify-center transition-all;
+  }
+
+  .checkbox.checked {
+    @apply bg-black border-black text-white;
+  }
+
+  .project-dot {
+    @apply w-3 h-3 rounded-full;
+  }
+
+  /* Tag and badge styles - Clean minimalist design */
+  .tag-badge {
+    @apply bg-gray-100 text-gray-700 text-sm inline-flex items-center py-0.5 px-2;
+    min-width: 32px;
+    text-align: left;
+    justify-content: flex-start;
+    font-weight: 500;
+    border-radius: 50px;
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  
+  .tag-badge:hover {
+    @apply bg-gray-200;
+  }
+
+  .tag-badge.tag-placeholder {
+    @apply bg-transparent text-gray-400;
+    min-width: 52px;
+  }
+  
+  /* Priority flags and badge styles */
+  .priority-badge, .date-badge {
+    @apply inline-flex items-center justify-center text-xs rounded-full px-1.5 py-0.5 font-medium;
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+  }
+  
+  .priority-badge span {
+    font-size: 16px;
+    line-height: 1;
+  }
+
+  .priority-badge.priority-placeholder {
+    @apply text-gray-400;
+  }
+  
+  .priority-p1 {
+    @apply text-red-600;
+  }
+  
+  .priority-p1:hover {
+    @apply text-red-700;
+  }
+  
+  .priority-p2 {
+    @apply text-yellow-600;
+  }
+  
+  .priority-p2:hover {
+    @apply text-yellow-700;
+  }
+  
+  .priority-p3 {
+    @apply text-blue-600;
+  }
+  
+  .priority-p3:hover {
+    @apply text-blue-700;
+  }
+  
+  .priority-p4 {
+    @apply text-black;
+  }
+  
+  .priority-p4:hover {
+    @apply text-gray-800;
+  }
+  
+  /* Make dates stand out, remain visible */
+  .date-badge {
+    @apply bg-gray-100 text-gray-700 text-sm inline-flex items-center py-0.5 px-2;
+    min-width: 32px;
+    text-align: left;
+    justify-content: flex-start;
+    font-weight: 500;
+    border-radius: 50px;
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .date-badge.date-placeholder {
+    @apply bg-transparent text-gray-400;
+    min-width: 52px;
+  }
+  
+  /* Date color coding based on proximity */
+  .date-today {
+    @apply bg-red-50 text-red-600;
+  }
+  
+  .date-today:hover {
+    @apply bg-red-100;
+  }
+  
+  .date-tomorrow {
+    @apply bg-amber-50 text-amber-600;
+  }
+  
+  .date-tomorrow:hover {
+    @apply bg-orange-100;
+  }
+  
+  .date-upcoming {
+    @apply bg-blue-50 text-blue-600;
+  }
+  
+  .date-upcoming:hover {
+    @apply bg-blue-100;
+  }
+
+  .block-handle {
+    @apply w-5 flex items-center justify-center text-gray-300 transition-opacity cursor-grab;
+    position: absolute;
+    left: -20px;
+    top: 3px;
+    height: auto;
+  }
+
+  /* Handle dots styling */
+  .handle-dots {
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  /* Selected block handle */
+  .selected-block .block-handle {
+    @apply opacity-100 text-blue-500;
+  }
+  
+  .selected-block:hover .block-handle {
+    @apply opacity-100;
+  }
+
+  /* Block content for text blocks */
+  .content-input {
+    @apply outline-none bg-transparent w-full resize-none overflow-hidden leading-normal text-[17px] font-helvetica;
+    height: auto;
+    border: none;
+    padding: 0;
+    padding-top: 1px;
+    min-height: 24px;
+    line-height: 1.3;
+    white-space: pre-wrap;
+    width: 100%;
+    margin-top: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  textarea.content-input {
+    font-family: inherit;
+    line-height: 1.3;
+    margin: 0;
+    padding-top: 1px;
+  }
+
+  .task-checkbox {
+    @apply flex items-center cursor-pointer;
+    flex-shrink: 0;
+    margin-top: 0;
+  }
+
+  .block-type-icon {
+    @apply flex items-center;
+    flex-shrink: 0;
+    margin-top: 0;
+  }
+
+  .block-content {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    position: relative;
+    min-height: 40px;
+    padding: 0 4px;
+  }
+
+  .block-content > div {
+    min-height: 24px;
+  }
+
+  .block-content .py-3 {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+
+  /* Divider block styling */
+  .divider-block {
+    @apply my-4 border-t border-gray-200 w-full;
+    height: 1px;
+  }
+
+  /* Project nesting vertical lines */
+  .project-tree-line {
+    position: relative;
+  }
+
+  .project-nested {
+    position: relative;
+    margin-left: 16px;
+  }
+
+  .project-nested::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -16px;
+    height: 100%;
+    width: 1px;
+    background-color: #e5e5e5;
+  }
+  
+  /* Horizontal connector line for nested items */
+  .project-nested::after {
+    content: '';
+    position: absolute;
+    top: 16px;
+    left: -16px;
+    width: 8px;
+    height: 1px;
+    background-color: #e5e5e5;
+  }
+
+  /* Block action buttons */
+  .action-button {
+    @apply p-1 rounded-sm transition-colors;
+    @apply hover:bg-swiss-lightGray/70;
+  }
+
+  /* Task checkbox styling */
+  .task-checkbox {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    margin-right: 4px;
+    flex-shrink: 0;
+  }
+
+  /* Block icons */
+  .block-type-icon {
+    display: flex;
+    align-items: center;
+    margin-right: 4px;
+    flex-shrink: 0;
+  }
+
+  /* Metadata badges */
+  .metadata-badges {
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+    margin-left: 0;
+    flex-shrink: 0;
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .metadata-item {
+    @apply cursor-pointer hover:opacity-100 opacity-80 transition-opacity flex items-center text-sm;
+    flex-shrink: 0;
+  }
+
+  /* Content display and input styling for consistent alignment */
+  .content-input,
+  .content-display {
+    line-height: 1.8;
+    width: 100%;
+    font-size: 16px;
+    font-weight: 500;
+    margin: 0;
+    padding: 0;
+    display: block;
+    font-family: inherit;
+    min-height: 28px;
+    position: relative;
+    top: 0;
+    left: 0;
+    padding-right: 120px; /* Add space for metadata */
+    transform: none;
+    box-sizing: border-box;
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+
+  .content-display {
+    cursor: text;
+    white-space: pre-wrap;
+    position: relative;
+    transform: none;
+    display: block;
+    padding-top: 2px;
+  }
+
+  textarea.content-input {
+    background-color: transparent;
+    border: none;
+    outline: none;
+    resize: none;
+    overflow-y: hidden;
+    white-space: pre-wrap;
+    box-sizing: border-box;
+    appearance: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    z-index: 1;
+    transform: none;
+    padding-top: 2px;
+    font-size: 16px;
+    font-weight: 500;
+  }
+
+  /* Wrapper to maintain consistent height during transition */
+  .content-wrapper {
+    position: relative;
+    min-height: 28px;
+    width: 100%;
+    /* Match the exact height of the display element */
+    display: block;
+  }
+
+  /* Make invisible content still take up space */
+  .content-wrapper .invisible {
+    visibility: hidden;
+    opacity: 0;
+    user-select: none;
+    pointer-events: none;
+    height: auto;
+  }
+
+  /* Absolutely position the textarea to prevent layout shifts */
+  .content-wrapper textarea.content-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    padding-top: 2px;
+  }
+
+  /* Make sure the same exact spacing is applied to both modes */
+  .content-wrapper,
+  .content-display {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+  }
+
+  /* Empty block placeholder */
+  .empty-block:empty:before {
+    content: attr(data-placeholder);
+    color: #94a3b8; /* text-slate-400 */
+    pointer-events: none;
+  }
+
+  /* Sidebar styles */
+  .sidebar-item {
+    @apply flex items-center p-1.5 rounded-sm cursor-pointer transition-colors font-medium text-sm;
+  }
+
+  .sidebar-item:hover {
+    @apply bg-swiss-lightGray/50;
+  }
+
+  .sidebar-item.active {
+    @apply bg-swiss-lightGray;
+  }
+
+  /* Section styles */
+  .section-header {
+    @apply flex items-center py-1 px-0;
+  }
+  
+  .section-header:hover {
+    @apply bg-swiss-lightGray/30;
+  }
+  
+  .section-drag-handle {
+    @apply opacity-0;
+  }
+  
+  .section-header:hover .section-drag-handle {
+    @apply opacity-100;
+  }
+  
+  .section-drop-indicator {
+    @apply h-1 bg-swiss-blue my-1 rounded-full;
+  }
+
+  /* Add New Section */
+  .add-section-button {
+    @apply flex items-center py-1.5 px-2 text-sm text-swiss-midGray hover:bg-swiss-lightGray/30 rounded-sm transition-colors cursor-pointer;
+  }
+
+  .add-section-input {
+    @apply w-full p-1.5 text-sm border border-swiss-black/20 rounded-sm bg-white;
+  }
+
+  .add-section-input:focus {
+    @apply outline-none ring-1 ring-swiss-black border-swiss-black;
+  }
+
+  /* Command bar styles */
+  .command-item {
+    @apply p-2 hover:bg-swiss-lightGray rounded-sm flex items-center cursor-pointer;
+  }
+
+  /* Tag hover dropdown */
+  .group\/tags:hover .tag-badge {
+    @apply bg-swiss-black/10;
+  }
+  
+  .group\/tags .invisible {
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s, opacity 0.2s ease;
+  }
+  
+  .group\/tags:hover .invisible {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  .metadata-item {
+    @apply cursor-pointer hover:opacity-100 opacity-80 transition-opacity flex items-center;
+  }
+
+  /* Mobile multi-select styles */
+  .floating-action-menu {
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    touch-action: none;
+    user-select: none;
+  }
+
+  @media (max-width: 640px) {
+    .editor-block.selected-block {
+      @apply bg-blue-50/50 border-l-4 border-blue-500;
+    }
+    
+    .multi-select-indicator {
+      width: 10px;
+      height: 10px;
+    }
+    
+    /* Hide standard drag handles on mobile when in multi-select mode */
+    .is-multi-selecting .block-handle {
+      display: none;
+    }
+    
+    /* Make the selection area easier to tap */
+    .editor-block {
+      @apply py-0.5;
+      min-height: 34px;
+    }
+  }
+
+  /* Editor block */
+  .editor-block {
+    padding: 4px 12px 4px 8px;
+    margin: 2px 0;
+    border-radius: 4px;
+    transition: background-color 0.15s;
+    width: 100%;
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+  }
+
+  .editor-block:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+  }
+
+  /* Block handle */
+  .block-handle {
+    padding: 4px;
+    margin-right: 2px;
+    width: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ccc;
+    opacity: 0;
+    cursor: grab;
+    transition: opacity 0.15s;
+  }
+
+  .editor-block:hover .block-handle {
+    opacity: 0.7;
+  }
+}
+
+/* Custom transitions */
+.fade-enter {
+  opacity: 0;
+  transform: translateY(5px);
+}
+
+.fade-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 200ms, transform 200ms;
+}
+
+.fade-exit {
+  opacity: 1;
+}
+
+.fade-exit-active {
+  opacity: 0;
+  transform: translateY(5px);
+  transition: opacity 200ms, transform 200ms;
+}
+
+/* Custom drag and drop styles */
+.sortable-ghost {
+  opacity: 0.3;
+}
+
+.sortable-drag {
+  opacity: 0.9;
+}
