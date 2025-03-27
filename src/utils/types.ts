@@ -13,7 +13,7 @@ export interface Project {
   sectionId?: string;
 }
 
-export type BlockType = 'text' | 'task' | 'bullet' | 'numbered' | 'heading' | 'query' | 'divider';
+export type BlockType = 'text' | 'task' | 'bullet' | 'numbered' | 'heading' | 'query' | 'divider' | 'movie';
 
 export type PriorityLevel = 'P1' | 'P2' | 'P3' | 'P4' | '';
 
@@ -32,6 +32,7 @@ export interface Block {
   query?: QueryCriteria; // For query blocks
   bgColor?: string; // For query block background color
   showTitle?: boolean; // For controlling query block title visibility
+  url?: string; // For movie blocks to store URL
 }
 
 export interface QueryCriteria {

@@ -3,9 +3,10 @@ import { useAppContext } from '../../store/store';
 import Block from './Block';
 import { Block as BlockType, BlockType as BlockTypeEnum } from '../../utils/types';
 import BlockCommandMenu from './BlockCommandMenu';
+import { parseWatchCommand, createIMDBSearchUrl } from '../../utils/blockUtils';
 
 const BlockEditor: React.FC = () => {
-  const { state, blocks, addBlock, updateBlocks } = useAppContext();
+  const { state, blocks, updateBlocks } = useAppContext();
   const { activeView } = state;
   const editorRef = useRef<HTMLDivElement>(null);
   const emptyBlockRef = useRef<HTMLDivElement>(null);
@@ -39,7 +40,54 @@ const BlockEditor: React.FC = () => {
   const handleAddTask = () => {
     const input = document.getElementById('task-input') as HTMLInputElement;
     if (input && input.value.trim()) {
-      addBlock();
+      const text = input.value.trim();
+      
+      // Check if this is a watch command
+      const { isWatchCommand, movieTitle } = parseWatchCommand(text);
+      
+      if (isWatchCommand && movieTitle) {
+        // Create a movie block
+        const newBlock: BlockType = { 
+          id: `block-${Date.now()}`, 
+          type: 'movie', 
+          content: movieTitle,
+          priority: '',
+          tags: ['Movie'],
+          collapsed: false,
+          children: [],
+          checked: false,
+          // Add the IMDB URL
+          url: createIMDBSearchUrl(movieTitle)
+        };
+        
+        // Add the new block to the list
+        updateBlocks([...blocks, newBlock]);
+        
+        // Focus the empty block again for continuous typing
+        setTimeout(() => {
+          if (emptyBlockRef.current) {
+            emptyBlockRef.current.textContent = '';
+            emptyBlockRef.current.focus();
+          }
+        }, 0);
+      } else {
+        // Create a normal task block
+        const newBlock: BlockType = { 
+          id: `block-${Date.now()}`, 
+          type: 'task', 
+          content: text, 
+          priority: '',
+          tags: [],
+          collapsed: false,
+          children: [],
+          checked: false
+        };
+        
+        // Add the new block to the list
+        updateBlocks([...blocks, newBlock]);
+      }
+      
+      // Clear the input
       input.value = '';
     }
   };
@@ -49,9 +97,9 @@ const BlockEditor: React.FC = () => {
     setEmptyBlockContent(e.currentTarget.textContent || '');
   };
 
-  // Calculate position for the command menu
-  const updateCommandMenuPosition = (source: 'input' | 'empty-block') => {
-    const element = source === 'input' ? inputRef.current : emptyBlockRef.current;
+  // Calculate position for the command menu (only for empty block)
+  const updateCommandMenuPosition = (source: 'empty-block') => {
+    const element = emptyBlockRef.current;
     if (!element) return;
     
     // Create a temporary span to measure text width
@@ -63,14 +111,9 @@ const BlockEditor: React.FC = () => {
     
     // Get the text before the cursor
     let textBeforeCursor = '';
-    if (source === 'input') {
-      const input = element as HTMLInputElement;
-      textBeforeCursor = input.value.substring(0, input.selectionStart || 0);
-    } else {
-      const selection = window.getSelection();
-      const range = selection?.getRangeAt(0);
-      textBeforeCursor = range ? range.startContainer.textContent?.substring(0, range.startOffset) || '' : '';
-    }
+    const selection = window.getSelection();
+    const range = selection?.getRangeAt(0);
+    textBeforeCursor = range ? range.startContainer.textContent?.substring(0, range.startOffset) || '' : '';
     
     // Measure the width
     span.textContent = textBeforeCursor;
@@ -89,7 +132,7 @@ const BlockEditor: React.FC = () => {
     const anchorElement = document.createElement('div');
     anchorElement.style.position = 'absolute';
     anchorElement.style.left = `${leftPadding + textWidth - 16}px`;
-    anchorElement.style.top = `${rect.top - (containerRect?.top || 0) + (source === 'input' ? -8 : -12)}px`;
+    anchorElement.style.top = `${rect.top - (containerRect?.top || 0) + -12}px`;
     anchorElement.style.height = `${rect.height}px`;
     
     setCommandMenuAnchor(anchorElement);
@@ -115,10 +158,8 @@ const BlockEditor: React.FC = () => {
     const newBlocks = [...blocks, newBlock];
     updateBlocks(newBlocks);
 
-    // Clear the input or empty block based on where the command was triggered
-    if (inputRef.current && document.activeElement === inputRef.current) {
-      inputRef.current.value = '';
-    } else if (emptyBlockRef.current) {
+    // Clear the empty block
+    if (emptyBlockRef.current) {
       emptyBlockRef.current.textContent = '';
     }
 
@@ -137,48 +178,54 @@ const BlockEditor: React.FC = () => {
     const input = e.target as HTMLInputElement;
     const text = input.value;
     
-    // Handle slash command
-    if (e.key === '/' && text === '') {
-      e.preventDefault();
-      updateCommandMenuPosition('input');
-      setShowCommandMenu(true);
-      return;
-    }
-
-    // Close command menu on escape
-    if (e.key === 'Escape' && showCommandMenu) {
-      e.preventDefault();
-      setShowCommandMenu(false);
-      return;
-    }
-
     // Enter to create block
     if (e.key === 'Enter' && !e.shiftKey && text.trim()) {
       e.preventDefault();
       
-      // Don't create new block if command menu is open
-      if (showCommandMenu) {
-        return;
+      // Check if this is a watch command
+      const { isWatchCommand, movieTitle } = parseWatchCommand(text);
+      
+      if (isWatchCommand && movieTitle) {
+        // Create a movie block
+        const newBlock: BlockType = { 
+          id: `block-${Date.now()}`, 
+          type: 'movie', 
+          content: movieTitle,
+          priority: '',
+          tags: ['Movie'],
+          collapsed: false,
+          children: [],
+          checked: false,
+          // Add the IMDB URL
+          url: createIMDBSearchUrl(movieTitle)
+        };
+        
+        // Add the new block to the list
+        updateBlocks([...blocks, newBlock]);
+        
+        // Focus the empty block again for continuous typing
+        setTimeout(() => {
+          if (emptyBlockRef.current) {
+            emptyBlockRef.current.textContent = '';
+            emptyBlockRef.current.focus();
+          }
+        }, 0);
+      } else {
+        // Create a normal task block
+        const newBlock: BlockType = { 
+          id: `block-${Date.now()}`, 
+          type: 'task', 
+          content: text.trim(), 
+          priority: '',
+          tags: [],
+          collapsed: false,
+          children: [],
+          checked: false
+        };
+        
+        // Add the new block to the list
+        updateBlocks([...blocks, newBlock]);
       }
-      
-      // Check if content starts with "[ ] " or "[] " to create a task
-      const isTask = /^\[[ x]?\]\s/.test(text.trim());
-      const cleanContent = text.trim().replace(/^\[[ x]?\]\s/, '');
-      
-      // Create a new block with the current content
-      const newBlock: BlockType = { 
-        id: `block-${Date.now()}`, 
-        type: isTask ? 'task' : 'text', 
-        content: cleanContent, 
-        priority: '',
-        tags: [],
-        collapsed: false,
-        children: [],
-        checked: false
-      };
-      
-      // Add the new block to the list
-      updateBlocks([...blocks, newBlock]);
       
       // Clear the input
       input.value = '';
@@ -204,29 +251,64 @@ const BlockEditor: React.FC = () => {
       setShowCommandMenu(false);
       return;
     }
-
+    
     // Convert empty block to a real block on enter
     if (e.key === 'Enter' && !e.shiftKey && emptyBlockContent.trim()) {
       e.preventDefault();
       
-      // Check if content starts with "[ ] " or "[] " to create a task
-      const isTask = /^\[[ x]?\]\s/.test(emptyBlockContent.trim());
-      const cleanContent = emptyBlockContent.trim().replace(/^\[[ x]?\]\s/, '');
+      // Don't create new block if command menu is open
+      if (showCommandMenu) {
+        return;
+      }
       
-      // Create a new block with the current content
-      const newBlock: BlockType = { 
-        id: `block-${Date.now()}`, 
-        type: isTask ? 'task' : 'text', 
-        content: cleanContent, 
-        priority: '',
-        tags: [],
-        collapsed: false,
-        children: [],
-        checked: false
-      };
+      // Check if this is a watch command
+      const { isWatchCommand, movieTitle } = parseWatchCommand(emptyBlockContent.trim());
       
-      // Add the new block to the list
-      updateBlocks([...blocks, newBlock]);
+      if (isWatchCommand && movieTitle) {
+        // Create a movie block
+        const newBlock: BlockType = { 
+          id: `block-${Date.now()}`, 
+          type: 'movie', 
+          content: movieTitle,
+          priority: '',
+          tags: ['Movie'],
+          collapsed: false,
+          children: [],
+          checked: false,
+          // Add the IMDB URL
+          url: createIMDBSearchUrl(movieTitle)
+        };
+        
+        // Add the new block to the list
+        updateBlocks([...blocks, newBlock]);
+        
+        // Focus the empty block again for continuous typing
+        setTimeout(() => {
+          if (emptyBlockRef.current) {
+            emptyBlockRef.current.textContent = '';
+            emptyBlockRef.current.focus();
+          }
+        }, 0);
+      } else {
+        // Check if content starts with "[ ] " or "[] " to create a task
+        const isTask = /^\[[ x]?\]\s/.test(emptyBlockContent.trim());
+        const cleanContent = emptyBlockContent.trim().replace(/^\[[ x]?\]\s/, '');
+        
+        // Create a new block with the current content
+        const newBlock: BlockType = { 
+          id: `block-${Date.now()}`, 
+          type: isTask ? 'task' : 'text', 
+          content: cleanContent, 
+          priority: '',
+          tags: [],
+          collapsed: false,
+          children: [],
+          checked: false
+        };
+        
+        // Add the new block to the list
+        updateBlocks([...blocks, newBlock]);
+      }
       
       // Clear the empty block
       setEmptyBlockContent('');
@@ -253,7 +335,7 @@ const BlockEditor: React.FC = () => {
             ref={inputRef}
             id="task-input"
             type="text" 
-            placeholder="Add a new block..." 
+            placeholder="Get something off your mind..." 
             className="flex-1 p-4 bg-white text-gray-800 focus:outline-none border-0 h-[50px]"
             onKeyDown={handleInputKeyDown}
           />
@@ -264,16 +346,6 @@ const BlockEditor: React.FC = () => {
             Add
           </button>
         </div>
-
-        {/* Command Menu */}
-        {showCommandMenu && commandMenuAnchor && (
-          <BlockCommandMenu
-            isOpen={showCommandMenu}
-            anchorEl={commandMenuAnchor}
-            onSelect={handleCommandSelect}
-            onClose={() => setShowCommandMenu(false)}
-          />
-        )}
       </div>
       
       {/* Horizontal separator line */}
@@ -307,6 +379,16 @@ const BlockEditor: React.FC = () => {
             tabIndex={0}
             data-placeholder="Type something..."
           />
+
+          {/* Command Menu for empty block */}
+          {showCommandMenu && commandMenuAnchor && (
+            <BlockCommandMenu
+              isOpen={showCommandMenu}
+              anchorEl={commandMenuAnchor}
+              onSelect={handleCommandSelect}
+              onClose={() => setShowCommandMenu(false)}
+            />
+          )}
         </div>
 
         {/* Clickable area that fills remaining space */}

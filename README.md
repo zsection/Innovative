@@ -1,4 +1,39 @@
-# Welcome to your Lovable project
+# Swiss Tagged Notes
+
+A minimalist note-taking application with tag-based organization and task management.
+
+## Features
+
+- Block-based editor with support for headings, tasks, bullets, and more
+- Tag-based organization system
+- Priority levels for tasks
+- Date assignment for tasks
+- Command menu for quick actions
+- Clean and minimalist UI
+
+## Current Development Branch: fix-text-positioning
+
+This branch addresses issues with text positioning in the editor blocks:
+- Fixing text shifting during editing
+- Ensuring consistent alignment between display and edit modes
+- Improved checkbox alignment and spacing
+
+## Development Setup
+
+```bash
+# Install dependencies
+npm install
+
+# Start the development server
+npm run dev
+```
+
+## Technologies Used
+
+- React
+- TypeScript
+- Tailwind CSS
+- Vite
 
 ## Project info
 
@@ -49,16 +84,6 @@ npm run dev
 - Select the "Codespaces" tab.
 - Click on "New codespace" to launch a new Codespace environment.
 - Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with .
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
 
 ## How can I deploy this project?
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { BookOpen, Calendar, Hash, CheckSquare, Square, List, ListOrdered, Heading1, Heading2, Heading3, Search, Check, ChevronRight, AlertCircle, Minus, Grip } from 'lucide-react';
+import { BookOpen, Calendar, Hash, CheckSquare, Square, List, ListOrdered, Heading1, Heading2, Heading3, Search, Check, ChevronRight, AlertCircle, Minus, Grip, Film } from 'lucide-react';
 import { type Block, BlockType, PriorityLevel } from '../../utils/types';
 import { processBlockInput, extractMetadata } from '../../utils/blockUtils';
 import { useAppContext } from '../../store/store';
@@ -657,81 +657,20 @@ const Block: React.FC<BlockProps> = ({ block, index }) => {
     );
   };
 
-  // Function to render block content with the correct styling
-  const renderBlockContent = () => {
-    // For block types that have custom rendering
-    if (block.type === 'divider') {
-      return (
-        <div className="divider-block"></div>
-      );
-    }
-    
-    if (block.type === 'query') {
-      return (
-        <QueryBlock block={block} onUpdate={handleQueryBlockUpdate} />
-      );
-    }
-    
-    // For remaining block types, render the standard content
-    return (
-      <div className="block-content group flex items-center">
-        {/* Only render the block type icon here, don't duplicate it elsewhere */}
-        {renderBlockTypeIcon()}
-        
-        <div className="flex-1 relative">
-          {/* When editing, show the textarea */}
-          {isEditing ? (
-            <div className="content-wrapper">
-              {/* Keep a hidden div with same content to maintain height */}
-              <div 
-                className="content-display invisible"
-                aria-hidden="true"
-              >
-                {displayContent}
-              </div>
-              
-              <textarea
-                ref={inputRef}
-                id={`block-${block.id}`}
-                className="content-input"
-                value={block.content}
-                onChange={handleContentChange}
-                onKeyDown={(e) => handleKeyDown(e, block.id, index)}
-                onFocus={handleInputFocus}
-                onClick={handleInputFocus}
-                onBlur={handleBlur}
-                autoFocus
-              />
-            </div>
-          ) : (
-            // When not editing, show the formatted content
-            <div 
-              className={`content-display ${block.type === 'task' && block.checked ? 'text-gray-400 line-through' : 'text-gray-800'}`}
-              onClick={handleTextClick}
-            >
-              {displayContent}
-            </div>
-          )}
-        </div>
-        
-        {/* Metadata display */}
-        {!isEditing && (block.priority || block.date || (block.tags && block.tags.length > 0)) && (
-          <div className="flex items-center gap-2 ml-auto metadata-display">
-            {renderTags()}
-            {renderPriority()}
-            {renderDate()}
-          </div>
-        )}
-      </div>
-    );
-  };
-  
   // Render block type icon
   const renderBlockTypeIcon = () => {
     if (block.type === 'query') {
       return (
         <div className="block-type-icon mr-3 flex-shrink-0">
           <Search size={18} className="text-gray-400" />
+        </div>
+      );
+    }
+    
+    if (block.type === 'movie') {
+      return (
+        <div className="block-type-icon mr-3 flex-shrink-0">
+          <Film size={18} className="text-blue-500" />
         </div>
       );
     }
@@ -890,6 +829,151 @@ const Block: React.FC<BlockProps> = ({ block, index }) => {
     }, 0);
   };
   
+  // Function to render block content with the correct styling
+  const renderBlockContent = () => {
+    // For block types that have custom rendering
+    if (block.type === 'divider') {
+      return (
+        <div className="divider-block"></div>
+      );
+    }
+    
+    if (block.type === 'query') {
+      return (
+        <QueryBlock block={block} onUpdate={handleQueryBlockUpdate} />
+      );
+    }
+    
+    if (block.type === 'movie' && block.url) {
+      return (
+        <div className="block-content group flex items-center">
+          {/* Block type icon is already rendered elsewhere */}
+          <div className="flex-1 relative">
+            {/* When editing, show the textarea */}
+            {isEditing ? (
+              <div className="content-wrapper">
+                {/* Keep a hidden div with same content to maintain height */}
+                <div 
+                  className="content-display invisible"
+                  aria-hidden="true"
+                >
+                  {displayContent}
+                </div>
+                
+                <textarea
+                  ref={inputRef}
+                  id={`block-${block.id}`}
+                  className="content-input"
+                  value={block.content}
+                  onChange={handleContentChange}
+                  onKeyDown={(e) => handleKeyDown(e, block.id, index)}
+                  onFocus={handleFocus}
+                  onClick={handleInputFocus}
+                  onBlur={handleBlur}
+                  autoFocus
+                />
+              </div>
+            ) : (
+              <div className="flex items-center">
+                {/* When not editing, show the formatted content */}
+                <div 
+                  className="content-display text-gray-800 flex-shrink"
+                  onClick={handleTextClick}
+                  style={{ flexGrow: 1, minWidth: 0 }}
+                >
+                  {displayContent}
+                </div>
+                
+                {/* Inline movie card */}
+                <a 
+                  href={block.url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="movie-card flex border border-gray-200 rounded-md overflow-hidden hover:border-blue-300 transition-colors ml-2 mr-2 flex-shrink-0"
+                  style={{ width: '70px', height: '24px' }}
+                >
+                  <div className="movie-card-img bg-blue-50 w-6 h-full flex items-center justify-center">
+                    <Film size={12} className="text-blue-500" />
+                  </div>
+                  <div className="movie-card-content flex flex-col justify-center px-2 py-0 flex-1">
+                    <div className="flex items-center">
+                      <span className="text-xs text-blue-600 font-medium">IMDB</span>
+                      <svg viewBox="0 0 24 24" className="w-3 h-3 ml-1 text-amber-500 fill-current">
+                        <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                      </svg>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            )}
+          </div>
+          
+          {/* Metadata display */}
+          {!isEditing && (block.priority || block.date || (block.tags && block.tags.length > 0)) && (
+            <div className="flex items-center gap-2 ml-auto metadata-display">
+              {renderTags()}
+              {renderPriority()}
+              {renderDate()}
+            </div>
+          )}
+        </div>
+      );
+    }
+    
+    // For remaining block types, render the standard content
+    return (
+      <div className="block-content group flex items-center">
+        {/* Only render the block type icon here, don't duplicate it elsewhere */}
+        {renderBlockTypeIcon()}
+        
+        <div className="flex-1 relative">
+          {/* When editing, show the textarea */}
+          {isEditing ? (
+            <div className="content-wrapper">
+              {/* Keep a hidden div with same content to maintain height */}
+              <div 
+                className="content-display invisible"
+                aria-hidden="true"
+              >
+                {displayContent}
+              </div>
+              
+              <textarea
+                ref={inputRef}
+                id={`block-${block.id}`}
+                className="content-input"
+                value={block.content}
+                onChange={handleContentChange}
+                onKeyDown={(e) => handleKeyDown(e, block.id, index)}
+                onFocus={handleFocus}
+                onClick={handleInputFocus}
+                onBlur={handleBlur}
+                autoFocus
+              />
+            </div>
+          ) : (
+            // When not editing, show the formatted content
+            <div 
+              className={`content-display ${block.type === 'task' && block.checked ? 'text-gray-400 line-through' : 'text-gray-800'}`}
+              onClick={handleTextClick}
+            >
+              {displayContent}
+            </div>
+          )}
+        </div>
+        
+        {/* Metadata display */}
+        {!isEditing && (block.priority || block.date || (block.tags && block.tags.length > 0)) && (
+          <div className="flex items-center gap-2 ml-auto metadata-display">
+            {renderTags()}
+            {renderPriority()}
+            {renderDate()}
+          </div>
+        )}
+      </div>
+    );
+  };
+  
   // Render the regular block's content
   return (
     <div 
@@ -913,7 +997,13 @@ const Block: React.FC<BlockProps> = ({ block, index }) => {
       
       {/* Block type indicator */}
       <div className="flex items-center mt-[2px]">
-        {renderBlockTypeIcon()}
+        {block.type === 'movie' ? (
+          <div className="block-type-icon mr-3 flex-shrink-0">
+            <Film size={18} className="text-blue-500" />
+          </div>
+        ) : (
+          renderBlockTypeIcon()
+        )}
       </div>
       
       {/* Block content */}
@@ -960,8 +1050,31 @@ const Block: React.FC<BlockProps> = ({ block, index }) => {
             ) : null}
           </div>
 
+          {/* Movie card - placed directly in the content area for movie blocks */}
+          {block.type === 'movie' && block.url && !isEditing && (
+            <a 
+              href={block.url} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="movie-card flex border border-gray-200 rounded-md overflow-hidden hover:border-blue-300 transition-colors ml-2 mr-2 flex-shrink-0"
+              style={{ width: '70px', height: '24px' }}
+            >
+              <div className="movie-card-img bg-blue-50 w-6 h-full flex items-center justify-center">
+                <Film size={12} className="text-blue-500" />
+              </div>
+              <div className="movie-card-content flex flex-col justify-center px-2 py-0 flex-1">
+                <div className="flex items-center">
+                  <span className="text-xs text-blue-600 font-medium">IMDB</span>
+                  <svg viewBox="0 0 24 24" className="w-3 h-3 ml-1 text-amber-500 fill-current">
+                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                  </svg>
+                </div>
+              </div>
+            </a>
+          )}
+
           {/* Metadata badges */}
-          <div className="flex items-center gap-2 ml-4 flex-shrink-0">
+          <div className="flex items-center gap-2 ml-auto flex-shrink-0">
             {renderPriority()}
             {renderDate()}
             {renderTags()}
